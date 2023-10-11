@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="favicon.ico">
+	<title>Unity Project Skater</title>
+</head>
+<body>
+	<div class="content">Unable to parse Build/test5r.framework.js.br! This can happen if build compression was enabled but web server hosting the content was misconfigured to not serve the file with HTTP Response Header "Content-Encoding: br" present. Check browser Console and Devtools Network tab to debug.</div>
+	<div class="progress_bar">
+		<div class="logo"></div>
+		<div class="frame"></div>
+		<div class="loading"></div>
+	</div>
+	<style>
+		body{
+			background-color: #231f20;
+		}
+
+		.content{
+			position: absolute;
+			font-family: 'Times New Roman', Times, serif;
+			font-size: 20px;
+			left: 50%;
+			top: 5%;
+			transform: translate(-50%);
+			background: red;
+			padding: 13px;
+			border: 13px solid white;
+		}
+
+		.logo{
+			width: 164px;
+			height: 130px;
+			background: url(unity-logo-dark.png) no-repeat center;
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+		}
+
+		.loading{
+			width: 124px;
+			height: 130px;
+			background: url(progress-bar-full-dark.png) no-repeat center;
+			position: absolute;
+			left: 50%;
+			top: 58%;
+			transform: translate(-56%, -50%);
+		}
+		
+		.frame{
+			width: 154px;
+			height: 130px;
+			background: url(progress-bar-empty-dark.png) no-repeat center;
+			position: absolute;
+			left: 50%;
+			top: 58%;
+			transform: translate(-50%, -50%);
+		}
+	</style>
+	<script>
+		window.addEventListener("load", function () {
+		  if ("serviceWorker" in navigator) {
+			navigator.serviceWorker.register("ServiceWorker.js");
+		  }
+		});
+  
+		var container = document.querySelector("#unity-container");
+		var canvas = document.querySelector("#unity-canvas");
+		var loadingBar = document.querySelector("#unity-loading-bar");
+		var progressBarFull = document.querySelector("#unity-progress-bar-full");
+		var warningBanner = document.querySelector("#unity-warning");
+  
+		// Shows a temporary message banner/ribbon for a few seconds, or
+		// a permanent error message on top of the canvas if type=='error'.
+		// If type=='warning', a yellow highlight color is used.
+		// Modify or remove this function to customize the visually presented
+		// way that non-critical warnings and error messages are presented to the
+		// user.
+		function unityShowBanner(msg, type) {
+		  function updateBannerVisibility() {
+			warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+		  }
+		  var div = document.createElement('div');
+		  div.innerHTML = msg;
+		  warningBanner.appendChild(div);
+		  if (type == 'error') div.style = 'background: red; padding: 10px;';
+		  else {
+			if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+			setTimeout(function() {
+			  warningBanner.removeChild(div);
+			  updateBannerVisibility();
+			}, 5000);
+		  }
+		  updateBannerVisibility();
+		}
+  
+		var buildUrl = "Build";
+		var loaderUrl = buildUrl + "/test5r.loader.js";
+		var config = {
+		  dataUrl: buildUrl + "/test5r.data.br",
+		  frameworkUrl: buildUrl + "/test5r.framework.js.br",
+		  codeUrl: buildUrl + "/test5r.wasm.br",
+		  streamingAssetsUrl: "StreamingAssets",
+		  companyName: "com.BolanenkoDevelopment.macfuds38Skater",
+		  productName: "Macfuds Skater",
+		  productVersion: "1.0",
+		  showBanner: unityShowBanner,
+		};
+  
+		// By default Unity keeps WebGL canvas render target size matched with
+		// the DOM size of the canvas element (scaled by window.devicePixelRatio)
+		// Set this to false if you want to decouple this synchronization from
+		// happening inside the engine, and you would instead like to size up
+		// the canvas DOM size and WebGL render target sizes yourself.
+		// config.matchWebGLToCanvasSize = false;
+  
+		if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+		  // Mobile device style: fill the whole browser client area with the game canvas:
+		  var meta = document.createElement('meta');
+		  meta.name = 'viewport';
+		  meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+		  document.getElementsByTagName('head')[0].appendChild(meta);
+		}
+  
+		loadingBar.style.display = "block";
+  
+		var script = document.createElement("script");
+		script.src = loaderUrl;
+		script.onload = () => {
+		  createUnityInstance(canvas, config, (progress) => {
+			progressBarFull.style.width = 100 * progress + "%";
+		  }).then((unityInstance) => {
+			loadingBar.style.display = "none";
+		  }).catch((message) => {
+			alert(message);
+		  });
+		};
+		document.body.appendChild(script);
+	</script>
+</body>
+</html>
